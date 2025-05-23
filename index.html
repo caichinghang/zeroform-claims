@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroForm Claims - Paperless Insurance Powered by Smart Contracts</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>ZeroForm Claims</span>
+            </div>
+            <div class="tagline">No forms. No friction. No waiting.</div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Screen -->
+            <section id="welcome-screen" class="screen active">
+                <div class="welcome-content">
+                    <h1 class="main-title">
+                        <span class="gradient-text">Paperless Insurance</span>
+                        <span class="subtitle">Powered by Smart Contracts</span>
+                    </h1>
+                    <p class="description">
+                        Experience the future of insurance claims processing with blockchain automation
+                    </p>
+                    <button id="start-demo" class="cta-button">
+                        <span>Start Demo</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="floating-elements">
+                    <div class="floating-card" style="--delay: 0s">
+                        <i class="fas fa-hospital"></i>
+                        <span>Hospital Integration</span>
+                    </div>
+                    <div class="floating-card" style="--delay: 0.5s">
+                        <i class="fas fa-link"></i>
+                        <span>Smart Contracts</span>
+                    </div>
+                    <div class="floating-card" style="--delay: 1s">
+                        <i class="fas fa-coins"></i>
+                        <span>Instant Payouts</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Case Selection Screen -->
+            <section id="case-screen" class="screen">
+                <div class="screen-header">
+                    <h2>Selecting Medical Case</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="--width: 20%"></div>
+                    </div>
+                </div>
+                <div class="case-selection">
+                    <div class="case-roulette">
+                        <div class="case-item" data-case="gastroscopy">住院肠胃镜检查</div>
+                        <div class="case-item" data-case="surgery">心脏手术</div>
+                        <div class="case-item" data-case="emergency">急诊治疗</div>
+                        <div class="case-item" data-case="therapy">物理治疗</div>
+                        <div class="case-item" data-case="checkup">全身检查</div>
+                    </div>
+                    <div class="selection-indicator"></div>
+                    <div class="selected-case">
+                        <h3>Selected Case:</h3>
+                        <div class="case-details">
+                            <i class="fas fa-procedures"></i>
+                            <span id="selected-case-text">住院肠胃镜检查</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Oracle Detection Screen -->
+            <section id="oracle-screen" class="screen">
+                <div class="screen-header">
+                    <h2>Oracle Data Detection</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="--width: 40%"></div>
+                    </div>
+                </div>
+                <div class="oracle-visualization">
+                    <div class="data-sources">
+                        <div class="source-node hospital">
+                            <i class="fas fa-hospital-alt"></i>
+                            <span>Hospital API</span>
+                            <div class="status-indicator connecting"></div>
+                        </div>
+                        <div class="source-node blockchain">
+                            <i class="fas fa-cube"></i>
+                            <span>Smart Contract</span>
+                            <div class="status-indicator"></div>
+                        </div>
+                        <div class="source-node hsbc">
+                            <i class="fas fa-university"></i>
+                            <span>HSBC Policy</span>
+                            <div class="status-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="data-flow">
+                        <div class="flow-line hospital-to-blockchain"></div>
+                        <div class="flow-line hsbc-to-blockchain"></div>
+                    </div>
+                    <div class="detected-event">
+                        <h3>Event Detected:</h3>
+                        <div class="event-card">
+                            <div class="event-header">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Hospital Admission Confirmed</span>
+                            </div>
+                            <div class="event-details">
+                                <div class="detail-item">
+                                    <span class="label">Patient:</span>
+                                    <span class="value">张先生 (Mr. Zhang)</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Procedure:</span>
+                                    <span class="value" id="procedure-name">住院肠胃镜检查</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Date:</span>
+                                    <span class="value" id="current-date"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Amount:</span>
+                                    <span class="value" id="procedure-amount">HKD 10,000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Policy Matching Screen -->
+            <section id="policy-screen" class="screen">
+                <div class="screen-header">
+                    <h2>HSBC Policy Verification</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="--width: 60%"></div>
+                    </div>
+                </div>
+                <div class="policy-matching">
+                    <div class="policy-card">
+                        <div class="policy-header">
+                            <i class="fas fa-file-contract"></i>
+                            <span>Medical Insurance Policy</span>
+                            <div class="policy-status verified">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Verified</span>
+                            </div>
+                        </div>
+                        <div class="policy-details">
+                            <div class="coverage-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <div class="coverage-info">
+                                    <h4>Hospital Procedures Coverage</h4>
+                                    <p>Covers diagnostic procedures including gastroscopy</p>
+                                    <span class="coverage-amount">Up to HKD 50,000</span>
+                                </div>
+                            </div>
+                            <div class="coverage-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div class="coverage-info">
+                                    <h4>Policy Status</h4>
+                                    <p>Active since Jan 2024</p>
+                                    <span class="status-badge active">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="matching-process">
+                        <div class="match-step completed">
+                            <i class="fas fa-user-check"></i>
+                            <span>Identity Verified</span>
+                        </div>
+                        <div class="match-step completed">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Coverage Active</span>
+                        </div>
+                        <div class="match-step completed">
+                            <i class="fas fa-stethoscope"></i>
+                            <span>Procedure Covered</span>
+                        </div>
+                        <div class="match-step processing">
+                            <i class="fas fa-calculator"></i>
+                            <span>Calculating Payout</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payment Processing Screen -->
+            <section id="payment-screen" class="screen">
+                <div class="screen-header">
+                    <h2>Automatic Payment Processing</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="--width: 80%"></div>
+                    </div>
+                </div>
+                <div class="payment-flow">
+                    <div class="payment-parties">
+                        <div class="party hsbc-bank">
+                            <div class="party-logo">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <h3>HSBC</h3>
+                            <p>Insurance Provider</p>
+                            <div class="balance">
+                                <span class="amount">HKD 10,000</span>
+                                <span class="label">Ready to Transfer</span>
+                            </div>
+                        </div>
+                        <div class="transfer-animation">
+                            <div class="transfer-line"></div>
+                            <div class="money-flow">
+                                <i class="fas fa-coins"></i>
+                                <span>HKD 10,000</span>
+                            </div>
+                            <div class="smart-contract-badge">
+                                <i class="fas fa-robot"></i>
+                                <span>Smart Contract</span>
+                            </div>
+                        </div>
+                        <div class="party hospital">
+                            <div class="party-logo">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <h3>Medical Center</h3>
+                            <p>Healthcare Provider</p>
+                            <div class="balance">
+                                <span class="amount">+ HKD 10,000</span>
+                                <span class="label">Payment Received</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="transaction-details">
+                        <h3>Transaction Details</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="label">Transaction ID:</span>
+                                <span class="value">0x7a8f9b2c...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Block Height:</span>
+                                <span class="value">#1,847,392</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Gas Fee:</span>
+                                <span class="value">0.002 ETH</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Status:</span>
+                                <span class="value success">Confirmed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Success Screen -->
+            <section id="success-screen" class="screen">
+                <div class="screen-header">
+                    <h2>Claim Processed Successfully</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="--width: 100%"></div>
+                    </div>
+                </div>
+                <div class="success-content">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Payment Completed!</h3>
+                    <p>Your claim has been automatically processed and payment sent to the hospital.</p>
+                    <div class="success-summary">
+                        <div class="summary-item">
+                            <span class="label">Processing Time:</span>
+                            <span class="value">2.3 seconds</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Amount Paid:</span>
+                            <span class="value">HKD 10,000</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Forms Required:</span>
+                            <span class="value zero">0</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="restart-demo" class="secondary-button">
+                            <i class="fas fa-redo"></i>
+                            Try Another Case
+                        </button>
+                        <button class="primary-button">
+                            <i class="fas fa-download"></i>
+                            Download Receipt
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Background Elements -->
+        <div class="background-elements">
+            <div class="grid-pattern"></div>
+            <div class="floating-particles"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
