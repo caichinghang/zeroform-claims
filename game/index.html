@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Rush! - Insurance Processing Game</title>
+    <link rel="stylesheet" href="game.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header -->
+        <header class="game-header">
+            <div class="game-logo">
+                <i class="fas fa-gamepad"></i>
+                <span>Claim Rush!</span>
+            </div>
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="label">Score:</span>
+                    <span class="value" id="total-score">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">Claims:</span>
+                    <span class="value" id="claims-processed">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">Time:</span>
+                    <span class="value" id="game-timer">0:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome Screen -->
+        <section id="welcome-screen" class="game-screen active">
+            <div class="welcome-content">
+                <h1 class="game-title">
+                    <span class="gradient-text">Claim Rush!</span>
+                    <span class="subtitle">The Insurance Processing Challenge</span>
+                </h1>
+                <p class="game-description">
+                    Experience the difference between traditional insurance processing and smart contract automation.
+                    Race against time to process as many claims as possible!
+                </p>
+                <div class="mode-selection">
+                    <div class="mode-card manual-mode" id="select-manual">
+                        <div class="mode-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3>Manual Mode</h3>
+                        <p>Traditional paperwork processing</p>
+                        <ul class="mode-features">
+                            <li><i class="fas fa-check"></i> Fill endless forms</li>
+                            <li><i class="fas fa-check"></i> Drag & drop documents</li>
+                            <li><i class="fas fa-check"></i> Solve captcha puzzles</li>
+                            <li><i class="fas fa-check"></i> Wait for processing</li>
+                        </ul>
+                        <button class="mode-button">Start Manual Challenge</button>
+                    </div>
+                    
+                    <div class="vs-indicator">
+                        <span>VS</span>
+                    </div>
+                    
+                    <div class="mode-card smart-mode" id="select-smart">
+                        <div class="mode-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>Smart Contract Mode</h3>
+                        <p>Automated blockchain processing</p>
+                        <ul class="mode-features">
+                            <li><i class="fas fa-check"></i> Configure oracles</li>
+                            <li><i class="fas fa-check"></i> Auto-approval</li>
+                            <li><i class="fas fa-check"></i> Blockchain visuals</li>
+                            <li><i class="fas fa-check"></i> Instant processing</li>
+                        </ul>
+                        <button class="mode-button">Start Smart Challenge</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manual Mode Game -->
+        <section id="manual-game" class="game-screen">
+            <div class="game-header-bar">
+                <h2>Manual Processing Mode</h2>
+                <div class="mode-stats">
+                    <div class="stat">
+                        <span class="label">Efficiency:</span>
+                        <div class="efficiency-bar">
+                            <div class="efficiency-fill" style="--width: 15%"></div>
+                        </div>
+                        <span class="value">15%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Satisfaction:</span>
+                        <div class="satisfaction-icons">
+                            <i class="fas fa-angry"></i>
+                            <i class="fas fa-frown"></i>
+                            <i class="far fa-meh"></i>
+                            <i class="far fa-smile"></i>
+                            <i class="far fa-grin"></i>
+                        </div>
+                    </div>
+                </div>
+                <button id="back-to-menu" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back to Menu
+                </button>
+            </div>
+            
+            <div class="manual-workspace">
+                <!-- Current Claim -->
+                <div class="current-claim">
+                    <h3>Processing Claim #<span id="current-claim-number">1</span></h3>
+                    <div class="claim-info">
+                        <div class="claim-detail">
+                            <span class="label">Patient:</span>
+                            <span class="value" id="patient-name">John Doe</span>
+                        </div>
+                        <div class="claim-detail">
+                            <span class="label">Procedure:</span>
+                            <span class="value" id="procedure-name">Emergency Treatment</span>
+                        </div>
+                        <div class="claim-detail">
+                            <span class="label">Amount:</span>
+                            <span class="value" id="claim-amount">$5,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Processing Steps -->
+                <div class="processing-steps">
+                    <!-- Step 1: Form Filling -->
+                    <div class="step active" id="step-forms">
+                        <h4><i class="fas fa-edit"></i> Step 1: Fill Forms</h4>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label>Policy Number:</label>
+                                <input type="text" id="policy-input" placeholder="Enter policy number...">
+                            </div>
+                            <div class="form-field">
+                                <label>Date of Service:</label>
+                                <input type="date" id="date-input">
+                            </div>
+                            <div class="form-field">
+                                <label>Diagnosis Code:</label>
+                                <select id="diagnosis-select">
+                                    <option value="">Select diagnosis...</option>
+                                    <option value="A01">Emergency Treatment</option>
+                                    <option value="B02">Routine Checkup</option>
+                                    <option value="C03">Surgery</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Provider ID:</label>
+                                <input type="text" id="provider-input" placeholder="Provider identification...">
+                            </div>
+                        </div>
+                        <button class="step-button" id="complete-forms" disabled>Complete Forms</button>
+                    </div>
+
+                    <!-- Step 2: Document Upload -->
+                    <div class="step" id="step-documents">
+                        <h4><i class="fas fa-upload"></i> Step 2: Upload Documents</h4>
+                        <div class="document-area">
+                            <div class="required-docs">
+                                <h5>Required Documents:</h5>
+                                <div class="doc-list">
+                                    <div class="doc-item" data-doc="medical-record">
+                                        <i class="fas fa-file-medical"></i>
+                                        <span>Medical Record</span>
+                                        <div class="doc-status pending">Pending</div>
+                                    </div>
+                                    <div class="doc-item" data-doc="insurance-card">
+                                        <i class="fas fa-id-card"></i>
+                                        <span>Insurance Card</span>
+                                        <div class="doc-status pending">Pending</div>
+                                    </div>
+                                    <div class="doc-item" data-doc="prescription">
+                                        <i class="fas fa-prescription"></i>
+                                        <span>Prescription</span>
+                                        <div class="doc-status pending">Pending</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="upload-zone" id="upload-zone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drag documents here or click to upload</p>
+                                <input type="file" id="file-input" multiple accept=".pdf,.jpg,.png" style="display: none;">
+                            </div>
+                        </div>
+                        <button class="step-button" id="complete-documents" disabled>Submit Documents</button>
+                    </div>
+
+                    <!-- Step 3: Captcha -->
+                    <div class="step" id="step-captcha">
+                        <h4><i class="fas fa-shield-alt"></i> Step 3: Security Verification</h4>
+                        <div class="captcha-container">
+                            <div class="captcha-challenge">
+                                <div class="captcha-text" id="captcha-text">7A9K2</div>
+                                <button class="captcha-refresh" id="refresh-captcha">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <input type="text" id="captcha-input" placeholder="Enter captcha code...">
+                            <div class="robot-check">
+                                <input type="checkbox" id="robot-checkbox">
+                                <label for="robot-checkbox">I'm not a robot</label>
+                            </div>
+                        </div>
+                        <button class="step-button" id="complete-captcha" disabled>Verify Security</button>
+                    </div>
+
+                    <!-- Step 4: Processing Wait -->
+                    <div class="step" id="step-processing">
+                        <h4><i class="fas fa-clock"></i> Step 4: Processing & Approval</h4>
+                        <div class="processing-container">
+                            <div class="processing-stages">
+                                <div class="stage" id="stage-validation">
+                                    <i class="fas fa-search"></i>
+                                    <span>Document Validation</span>
+                                    <div class="stage-status pending">Pending</div>
+                                </div>
+                                <div class="stage" id="stage-review">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>Manager Review</span>
+                                    <div class="stage-status pending">Pending</div>
+                                </div>
+                                <div class="stage" id="stage-approval">
+                                    <i class="fas fa-stamp"></i>
+                                    <span>Final Approval</span>
+                                    <div class="stage-status pending">Pending</div>
+                                </div>
+                            </div>
+                            <div class="processing-timer">
+                                <div class="timer-display">
+                                    <span>Estimated processing time:</span>
+                                    <div class="timer-value" id="processing-timer">3:45</div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="processing-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="step-button" id="complete-processing" disabled>Processing Complete</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Smart Contract Mode Game -->
+        <section id="smart-game" class="game-screen">
+            <div class="game-header-bar">
+                <h2>Smart Contract Processing Mode</h2>
+                <div class="mode-stats">
+                    <div class="stat">
+                        <span class="label">Efficiency:</span>
+                        <div class="efficiency-bar">
+                            <div class="efficiency-fill" style="--width: 95%"></div>
+                        </div>
+                        <span class="value">95%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Satisfaction:</span>
+                        <div class="satisfaction-icons">
+                            <i class="far fa-angry"></i>
+                            <i class="far fa-frown"></i>
+                            <i class="far fa-meh"></i>
+                            <i class="far fa-smile"></i>
+                            <i class="fas fa-grin"></i>
+                        </div>
+                    </div>
+                </div>
+                <button id="back-to-menu-smart" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back to Menu
+                </button>
+            </div>
+            
+            <div class="smart-workspace">
+                <!-- Oracle Configuration -->
+                <div class="oracle-setup">
+                    <h3>Oracle Configuration</h3>
+                    <div class="oracle-nodes">
+                        <div class="oracle-node" data-oracle="hospital">
+                            <i class="fas fa-hospital"></i>
+                            <span>Hospital API</span>
+                            <div class="connection-status disconnected" id="hospital-status">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <div class="oracle-node" data-oracle="insurance">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Insurance DB</span>
+                            <div class="connection-status disconnected" id="insurance-status">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <div class="oracle-node" data-oracle="payment">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Payment Gateway</span>
+                            <div class="connection-status disconnected" id="payment-status">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="setup-button" id="configure-oracles">Configure Oracles</button>
+                </div>
+
+                <!-- Smart Contract Dashboard -->
+                <div class="smart-dashboard">
+                    <div class="claims-queue">
+                        <h3>Claims Processing Queue</h3>
+                        <div class="queue-container" id="claims-queue">
+                            <!-- Claims will be dynamically added here -->
+                        </div>
+                    </div>
+                    
+                    <div class="blockchain-visual">
+                        <h3>Blockchain Activity</h3>
+                        <div class="blockchain-container">
+                            <div class="block-chain" id="block-chain">
+                                <!-- Blocks will be added here -->
+                            </div>
+                            <div class="transaction-feed" id="transaction-feed">
+                                <!-- Live transaction updates -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Popup -->
+        <div class="educational-popup" id="educational-popup">
+            <div class="popup-content">
+                <button class="close-popup" id="close-popup">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="popup-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 id="popup-title">Did You Know?</h3>
+                <p id="popup-text">Educational content goes here...</p>
+                <button class="popup-button" id="popup-continue">Continue</button>
+            </div>
+        </div>
+
+        <!-- Game Results -->
+        <div class="game-results" id="game-results">
+            <div class="results-content">
+                <h2>Game Complete!</h2>
+                <div class="final-scores">
+                    <div class="score-comparison">
+                        <div class="mode-result manual">
+                            <h3>Manual Mode</h3>
+                            <div class="result-stats">
+                                <div class="stat">
+                                    <span class="label">Claims Processed:</span>
+                                    <span class="value" id="manual-claims">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Time per Claim:</span>
+                                    <span class="value" id="manual-time">0s</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Efficiency:</span>
+                                    <span class="value" id="manual-efficiency">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mode-result smart">
+                            <h3>Smart Contract Mode</h3>
+                            <div class="result-stats">
+                                <div class="stat">
+                                    <span class="label">Claims Processed:</span>
+                                    <span class="value" id="smart-claims">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Time per Claim:</span>
+                                    <span class="value" id="smart-time">0s</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Efficiency:</span>
+                                    <span class="value" id="smart-efficiency">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-actions">
+                    <button class="results-button" id="play-again">Play Again</button>
+                    <button class="results-button" id="view-main-demo">View Main Demo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html> 
