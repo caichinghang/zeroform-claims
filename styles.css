@@ -96,7 +96,7 @@ body {
 
 .main-content {
     flex: 1;
-    padding-top: 120px;
+    padding-top: 40px;
     position: relative;
 }
 
@@ -126,7 +126,7 @@ body {
 .screen-header {
     margin-bottom: 3rem;
     text-align: center;
-    padding-top: 2rem;
+    padding-top: 3rem;
 }
 
 .screen-header h2 {
@@ -294,82 +294,95 @@ body {
     50% { transform: translateY(-20px); }
 }
 
-/* Case Selection Screen */
-.case-selection {
+/* New Case Selection Screen V2 Styles */
+.case-selection-v2 {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3rem;
+    gap: 2rem; /* Spacing between cards container and selected case details */
+    perspective: 1000px; /* For 3D card flip */
 }
 
-.case-roulette {
+.case-cards-container {
+    display: flex;
+    gap: 1.5rem; /* Spacing between cards */
+    justify-content: center;
+    flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+    padding: 1rem;
+}
+
+.case-card {
+    width: 180px;
+    height: 250px;
     position: relative;
-    height: 200px;
-    width: 100%;
-    max-width: 600px;
-    overflow: hidden;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
     border-radius: var(--border-radius-lg);
-    background: var(--bg-glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--border-color);
 }
 
-.case-item {
+.case-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.case-card-face {
     position: absolute;
     width: 100%;
     height: 100%;
+    backface-visibility: hidden;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    background: var(--bg-card);
-    transition: all var(--transition-medium);
-    cursor: pointer;
-}
-
-.case-item:hover {
-    background: var(--bg-glass);
-    transform: scale(1.02);
-}
-
-.selection-indicator {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 4px;
-    height: 60px;
-    background: var(--gradient-primary);
-    border-radius: 2px;
-    box-shadow: 0 0 20px var(--primary-color);
-    z-index: 10;
-}
-
-.selected-case {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: 2rem;
+    align-items: center;
     text-align: center;
-    backdrop-filter: blur(20px);
+    padding: 1rem;
+    border-radius: var(--border-radius-lg);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.selected-case h3 {
+.case-card-front {
+    background: var(--bg-card);
+}
+
+.case-card-front i {
+    font-size: 4rem;
+    color: var(--primary-color);
     margin-bottom: 1rem;
+}
+
+.case-card-front span {
+    font-size: 1.2rem;
     color: var(--text-secondary);
 }
 
-.case-details {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    font-size: 1.5rem;
+.case-card-back {
+    background: var(--gradient-primary);
+    color: white;
+    transform: rotateY(180deg);
+}
+
+.case-card-back i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.case-card-back h4 {
+    font-size: 1.1rem;
     font-weight: 600;
-    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.case-card-back p {
+    font-size: 0.9rem;
+}
+
+.case-card.highlighted {
+    border: 3px solid var(--secondary-color);
+    box-shadow: 0 0 25px var(--secondary-color);
+    transform: scale(1.05); /* Slightly larger when highlighted */
 }
 
 /* Oracle Screen */
@@ -1094,4 +1107,9 @@ body {
         opacity: 1;
         transform: scale(1);
     }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
 } 

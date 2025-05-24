@@ -8,19 +8,22 @@ class ZeroFormDemo {
             'oracle-screen',
             'policy-screen',
             'payment-screen',
-            'success-screen'
+            'success-screen',
+            'receipt-screen'
         ];
         
         this.cases = [
-            { id: 'gastroscopy', name: '住院肠胃镜检查', amount: 'HKD 10,000', type: 'diagnostic' },
-            { id: 'surgery', name: '心脏手术', amount: 'HKD 50,000', type: 'surgery' },
-            { id: 'emergency', name: '急诊治疗', amount: 'HKD 8,000', type: 'emergency' },
-            { id: 'therapy', name: '物理治疗', amount: 'HKD 3,000', type: 'therapy' },
-            { id: 'checkup', name: '全身检查', amount: 'HKD 2,500', type: 'checkup' }
+            { id: 'gastroscopy', name: 'Gastroscopy (Inpatient)', amount: 'HKD 10,000', type: 'diagnostic', icon: 'fas fa-肠镜' },
+            { id: 'surgery', name: 'Heart Surgery', amount: 'HKD 50,000', type: 'surgery', icon: 'fas fa-heartbeat' },
+            { id: 'emergency', name: 'Emergency Treatment', amount: 'HKD 8,000', type: 'emergency', icon: 'fas fa-ambulance' },
+            { id: 'therapy', name: 'Physical Therapy', amount: 'HKD 3,000', type: 'therapy', icon: 'fas fa-child' },
+            { id: 'checkup', name: 'Full Body Checkup', amount: 'HKD 2,500', type: 'checkup', icon: 'fas fa-user-md' }
         ];
         
         this.selectedCase = this.cases[0]; // Default to gastroscopy
         this.isAnimating = false;
+        this.transactionId = null; // To store transaction ID
+        this.blockHeight = null; // To store block height
         
         this.init();
     }
@@ -50,8 +53,20 @@ class ZeroFormDemo {
             restartBtn.addEventListener('click', () => this.restartDemo());
         }
         
+        // "Continue" buttons
+        document.getElementById('continue-from-case').addEventListener('click', () => this.nextScreen());
+        document.getElementById('continue-from-oracle').addEventListener('click', () => this.nextScreen());
+        document.getElementById('continue-from-policy').addEventListener('click', () => this.nextScreen());
+        document.getElementById('continue-from-payment').addEventListener('click', () => this.nextScreen());
+
+        // Receipt screen buttons
+        document.getElementById('view-receipt-button').addEventListener('click', () => this.showReceiptScreen());
+        document.getElementById('receipt-back-to-summary').addEventListener('click', () => this.showScreen(this.screens.indexOf('success-screen')));
+        // Placeholder for PDF download
+        document.getElementById('download-receipt-pdf').addEventListener('click', () => alert('PDF download functionality to be implemented.'));
+        
         // Case roulette interaction
-        this.setupCaseRoulette();
+        this.setupCaseCards();
         
         // Add keyboard navigation
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
@@ -60,18 +75,28 @@ class ZeroFormDemo {
         this.setupMouseInteractions();
     }
     
-    setupCaseRoulette() {
-        const rouletteContainer = document.querySelector('.case-roulette');
-        const caseItems = document.querySelectorAll('.case-item');
-        
-        if (!rouletteContainer || !caseItems.length) return;
-        
-        // Position case items for roulette animation
-        caseItems.forEach((item, index) => {
-            item.style.transform = `translateY(${index * 100}%)`;
-            item.addEventListener('click', () => {
-                this.selectCase(this.cases[index]);
-            });
+    setupCaseCards() {
+        const cardsContainer = document.querySelector('.case-cards-container');
+        cardsContainer.innerHTML = ''; // Clear previous cards
+
+        this.cases.forEach((caseItem, index) => {
+            const card = document.createElement('div');
+            card.className = 'case-card';
+            card.dataset.caseId = caseItem.id;
+            card.dataset.index = index;
+
+            card.innerHTML = `
+                <div class="case-card-face case-card-front">
+                    <i class="fas fa-file-medical-alt"></i> 
+                    <span>Case File</span>
+                </div>
+                <div class="case-card-face case-card-back">
+                    <i class="${caseItem.icon || 'fas fa-question-circle'}"></i>
+                    <h4>${caseItem.name}</h4>
+                    <p>${caseItem.amount}</p>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
         });
     }
     
@@ -129,13 +154,30 @@ class ZeroFormDemo {
     restartDemo() {
         this.currentScreen = 0;
         this.selectedCase = this.cases[0];
+        this.transactionId = null;
+        this.blockHeight = null;
         this.showScreen(0);
-        this.updateSelectedCase();
+        document.querySelector('.selected-case').classList.add('hidden');
+        document.getElementById('continue-from-case').classList.add('hidden');
+        this.setupCaseCards();
         this.resetAnimations();
     }
     
     nextScreen() {
-        if (this.isAnimating || this.currentScreen >= this.screens.length - 1) return;
+        if (this.isAnimating || this.currentScreen >= this.screens.length - 2) { // Adjusted for receipt screen
+             // If on success screen and next is called, it might be via a continue button if we add one there
+            if (this.currentScreen === this.screens.indexOf('success-screen')) {
+                // Potentially navigate to receipt or end, handled by specific buttons now
+                return;
+            }
+            if (this.currentScreen >= this.screens.length -1) return;
+        }
+
+        // Hide all continue buttons before proceeding
+        document.getElementById('continue-from-case').classList.add('hidden');
+        document.getElementById('continue-from-oracle').classList.add('hidden');
+        document.getElementById('continue-from-policy').classList.add('hidden');
+        document.getElementById('continue-from-payment').classList.add('hidden');
         
         this.isAnimating = true;
         this.currentScreen++;
@@ -201,51 +243,78 @@ class ZeroFormDemo {
         });
     }
     
-    // Case Selection Animation
+    // Case Selection Animation - NEW Card Flip Reveal
     animateCaseSelection() {
-        const roulette = document.querySelector('.case-roulette');
-        const caseItems = document.querySelectorAll('.case-item');
+        this.isAnimating = true;
+        const cardsContainer = document.querySelector('.case-cards-container');
         const selectedCaseElement = document.querySelector('.selected-case');
-        
-        if (!roulette || !caseItems.length) return;
-        
-        // Animate roulette spinning
-        let spinCount = 0;
-        const spinInterval = setInterval(() => {
-            caseItems.forEach((item, index) => {
-                const offset = (index + spinCount) % caseItems.length;
-                item.style.transform = `translateY(${offset * 100 - 200}%)`;
-                item.style.opacity = offset === 2 ? '1' : '0.3';
-            });
-            
-            spinCount++;
-            
-            if (spinCount >= 20) { // Increased from 15 to 20 for longer spin
-                clearInterval(spinInterval);
-                
-                // Randomly select a case instead of always using the default
-                const randomCaseIndex = Math.floor(Math.random() * this.cases.length);
-                this.selectCase(this.cases[randomCaseIndex]);
-                
-                // Position the selected case in the center
-                caseItems.forEach((item, index) => {
-                    if (index === randomCaseIndex) {
-                        item.style.transform = 'translateY(0%)';
-                        item.style.opacity = '1';
-                    } else {
-                        item.style.opacity = '0.3';
-                    }
-                });
-                
-                setTimeout(() => {
-                    this.addAnimationClass('selected-case', 'bounce-in');
-                    this.isAnimating = false;
-                    
-                    // Auto advance after selection - slowed down
-                    setTimeout(() => this.nextScreen(), 5000); // Increased from 3000 to 5000
-                }, 1000); // Increased from 500 to 1000
+        selectedCaseElement.classList.add('hidden');
+        document.getElementById('continue-from-case').classList.add('hidden');
+
+        this.setupCaseCards(); // Ensure cards are fresh
+        const caseCards = Array.from(cardsContainer.children);
+
+        // 1. Animate cards into view (simple fade-in for now)
+        caseCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0px)';
+            }, 100 + index * 100); 
+        });
+
+        // 2. Rapid highlight movement
+        let highlightIndex = 0;
+        let highlightCycles = 0;
+        const totalHighlightSpins = 3; // How many times to cycle through cards
+        const highlightSpeed = 80; // ms per highlight change
+
+        const highlightInterval = setInterval(() => {
+            caseCards.forEach(card => card.classList.remove('highlighted'));
+            if (caseCards[highlightIndex]) {
+                caseCards[highlightIndex].classList.add('highlighted');
             }
-        }, 300); // Increased from 200 to 300 for slower spinning
+            highlightIndex++;
+            if (highlightIndex >= caseCards.length) {
+                highlightIndex = 0;
+                highlightCycles++;
+            }
+
+            if (highlightCycles >= totalHighlightSpins) {
+                clearInterval(highlightInterval);
+                
+                // 3. Stop on a random card
+                const randomIndex = Math.floor(Math.random() * this.cases.length);
+                this.selectCase(this.cases[randomIndex]);
+                const selectedCardElement = caseCards[randomIndex];
+
+                caseCards.forEach(card => card.classList.remove('highlighted'));
+                if (selectedCardElement) {
+                    selectedCardElement.classList.add('highlighted');
+                }
+
+                // 4. Flip the selected card and dim others
+                setTimeout(() => {
+                    caseCards.forEach((card, idx) => {
+                        if (idx === randomIndex) {
+                            card.classList.add('flipped');
+                        } else {
+                            card.style.opacity = '0.5'; // Dim other cards
+                        }
+                    });
+
+                    // 5. Show selected case details
+                    setTimeout(() => {
+                        selectedCaseElement.classList.remove('hidden');
+                        this.addAnimationClass('selected-case', 'bounce-in');
+                        this.isAnimating = false;
+                        document.getElementById('continue-from-case').classList.remove('hidden');
+                    }, 700); // Wait for flip animation
+                }, 500); // Delay before flipping
+            }
+        }, highlightSpeed);
     }
     
     selectCase(caseData) {
@@ -367,9 +436,7 @@ class ZeroFormDemo {
                 this.updateCaseInformation();
             }
             this.isAnimating = false;
-            
-            // Auto advance - slowed down
-            setTimeout(() => this.nextScreen(), 6000); // Increased from 4000
+            document.getElementById('continue-from-oracle').classList.remove('hidden'); // Show continue button
         }, 5500); // Increased from 3500
     }
     
@@ -377,40 +444,51 @@ class ZeroFormDemo {
     animatePolicyVerification() {
         const matchSteps = document.querySelectorAll('.match-step');
         const policyCard = document.querySelector('.policy-card');
+        const stepDelay = 1500; // Delay for each step
+
+        // Reset all steps to initial state (neither processing nor completed)
+        matchSteps.forEach(step => {
+            step.classList.remove('processing', 'completed');
+        });
         
         // Show policy card
         setTimeout(() => {
             if (policyCard) {
                 this.addAnimationClass('policy-card', 'slide-up');
             }
-        }, 1000); // Increased from 500
+        }, 500); // Shortened delay for card appearance
         
-        // Animate verification steps
-        matchSteps.forEach((step, index) => {
-            setTimeout(() => {
-                if (index < matchSteps.length - 1) {
+        // Animate verification steps sequentially
+        let currentStep = 0;
+        const animateNextStep = () => {
+            if (currentStep < matchSteps.length) {
+                const step = matchSteps[currentStep];
+                
+                // Add processing (yellow)
+                step.classList.add('processing');
+                this.addAnimationClass(step, 'bounce-in'); // Bounce in when yellow
+
+                setTimeout(() => {
+                    // Remove processing, add completed (green)
                     step.classList.remove('processing');
                     step.classList.add('completed');
-                    this.addAnimationClass(step, 'bounce-in');
-                } else {
-                    step.classList.add('processing');
-                }
-            }, (index + 1) * 1500); // Increased from 1000 to 1500
-        });
-        
-        // Complete final step
-        setTimeout(() => {
-            const finalStep = matchSteps[matchSteps.length - 1];
-            if (finalStep) {
-                finalStep.classList.remove('processing');
-                finalStep.classList.add('completed');
-                this.addAnimationClass(finalStep, 'bounce-in');
+                    // Optionally, re-bounce or use a different animation for green
+                    // this.addAnimationClass(step, 'bounce-in'); 
+
+                    currentStep++;
+                    animateNextStep(); // Process next step
+                }, stepDelay); // Time for yellow state
+            } else {
+                // All steps completed
+                this.isAnimating = false;
+                document.getElementById('continue-from-policy').classList.remove('hidden');
             }
-            this.isAnimating = false;
-            
-            // Auto advance - slowed down
-            setTimeout(() => this.nextScreen(), 3000); // Increased from 2000
-        }, matchSteps.length * 1500 + 2000); // Adjusted timing
+        };
+
+        // Start animation after card is shown
+        setTimeout(() => {
+            animateNextStep();
+        }, 1000); // Delay to start first step after card animation
     }
     
     // Payment Flow Animation - Slowed down
@@ -463,9 +541,7 @@ class ZeroFormDemo {
                 this.generateRandomTransactionData();
             }
             this.isAnimating = false;
-            
-            // Auto advance - slowed down
-            setTimeout(() => this.nextScreen(), 4000); // Increased from 3000
+            document.getElementById('continue-from-payment').classList.remove('hidden'); // Show continue button
         }, 7500); // Increased from 5000
     }
     
@@ -548,17 +624,19 @@ class ZeroFormDemo {
     }
     
     generateRandomTransactionData() {
-        const transactionId = document.querySelector('.detail-item .value:first-child');
-        const blockHeight = document.querySelectorAll('.detail-item .value')[1];
+        const transactionIdEl = document.getElementById('transaction-id-value');
+        const blockHeightEl = document.getElementById('block-height-value');
         
-        if (transactionId) {
+        if (transactionIdEl) {
             const randomHash = this.generateRandomHash();
-            transactionId.textContent = `0x${randomHash}...`;
+            this.transactionId = `0x${randomHash}...`;
+            transactionIdEl.textContent = this.transactionId;
         }
         
-        if (blockHeight) {
+        if (blockHeightEl) {
             const randomBlock = Math.floor(Math.random() * 100000) + 1800000;
-            blockHeight.textContent = `#${randomBlock.toLocaleString()}`;
+            this.blockHeight = `#${randomBlock.toLocaleString()}`;
+            blockHeightEl.textContent = this.blockHeight;
         }
     }
     
@@ -658,14 +736,21 @@ class ZeroFormDemo {
         // Reset match steps
         const matchSteps = document.querySelectorAll('.match-step');
         matchSteps.forEach((step, index) => {
-            step.classList.remove('completed');
-            if (index === matchSteps.length - 1) {
-                step.classList.add('processing');
-            }
+            step.classList.remove('completed', 'processing'); 
         });
         
         // Reset progress bars
         this.updateProgressBars();
+    }
+
+    showReceiptScreen() {
+        document.getElementById('receipt-case-name').textContent = this.selectedCase.name;
+        document.getElementById('receipt-case-amount').textContent = this.selectedCase.amount;
+        document.getElementById('receipt-processing-time').textContent = document.querySelector('#success-screen .summary-item:nth-child(1) .value').textContent; 
+        document.getElementById('receipt-transaction-id').textContent = this.transactionId || '-';
+        document.getElementById('receipt-block-height').textContent = this.blockHeight || '-';
+
+        this.showScreen(this.screens.indexOf('receipt-screen'));
     }
 }
 
@@ -726,7 +811,6 @@ class AnimationManager {
             
             container.appendChild(particle);
             
-            // Animate particle
             particle.animate([
                 { 
                     transform: 'translate(0, 0) scale(1)',
@@ -744,7 +828,6 @@ class AnimationManager {
     }
 }
 
-// Add CSS animations for particles
 const style = document.createElement('style');
 style.textContent = `
     @keyframes ripple {
@@ -760,36 +843,34 @@ style.textContent = `
             opacity: 0;
         }
     }
+    @keyframes particleFloat { 
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
 `;
 document.head.appendChild(style);
 
-// Initialize the demo when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const demo = new ZeroFormDemo();
     
-    // Add ripple effects to buttons
     const buttons = document.querySelectorAll('button, .floating-card, .case-item');
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
             AnimationManager.addRippleEffect(button, e);
-            AnimationManager.addParticleExplosion(e.clientX, e.clientY);
         });
     });
     
-    // Add loading completion animation
     window.addEventListener('load', () => {
         document.body.style.opacity = '1';
         document.body.style.transform = 'scale(1)';
     });
 });
 
-// Set initial page state
 document.body.style.cssText = `
     opacity: 0;
     transform: scale(0.95);
     transition: all 0.8s ease;
 `;
 
-// Export for potential external use
 window.ZeroFormDemo = ZeroFormDemo;
-window.AnimationManager = AnimationManager; 
+window.AnimationManager = AnimationManager;
